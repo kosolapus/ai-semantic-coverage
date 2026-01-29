@@ -3,46 +3,37 @@ import eslint from '@eslint/js';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
-import markdown from "@eslint/markdown";
+import markdown from '@eslint/markdown';
 
-export default tseslint.config(
-  {
-    ignores: ['eslint.config.mjs'],
-
-  },
-    {
-      files: [".md"],
-      plugins: {
-        markdown,
-      },
-      languageOptions: {
-        parserOptions: {
-          projectService: true
-        }
-      }
-    },
+const config = [
   eslint.configs.recommended,
-  ...tseslint.configs.recommendedTypeChecked,
   eslintPluginPrettierRecommended,
-
+  ...tseslint.configs.recommendedTypeChecked,
   {
     languageOptions: {
       globals: {
         ...globals.node,
         ...globals.jest,
       },
-      sourceType: 'commonjs',
+
+      sourceType: 'module',
       parserOptions: {
+        allowDefaultProject: ['*.mjs, *.ts'],
         projectService: true,
         tsconfigRootDir: import.meta.dirname,
       },
     },
   },
+  markdown.configs.recommended,
+
   {
     rules: {
-      '@typescript-eslint/no-explicit-any': 'off',
-      '@typescript-eslint/no-floating-promises': 'warn',
-      '@typescript-eslint/no-unsafe-argument': 'warn'
+        '@typescript-eslint/no-explicit-any': 'off',
+        '@typescript-eslint/no-floating-promises': 'warn',
+        '@typescript-eslint/no-unsafe-argument': 'warn'
     },
   },
-);
+];
+
+console.log(config);
+export default tseslint.config(...config);
