@@ -1,6 +1,7 @@
-import { Controller, Post, Body } from '@nestjs/common';
-import { EmbeddingService } from '../../domain/embedding/embedding.service';
+import { Controller, Post, Body, Get } from '@nestjs/common';
+import { EmbeddingService } from '@/domain/embedding/embedding.service';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { CalculatePipeline } from '@/pipeline/calculate.pipeline';
 
 class SearchDto {
   @ApiProperty()
@@ -14,7 +15,10 @@ class SearchDto {
 }
 @Controller('search')
 export class SearchController {
-  constructor(private readonly embeddingService: EmbeddingService) {}
+  constructor(
+    private readonly embeddingService: EmbeddingService,
+    private readonly calculatePipeline: CalculatePipeline,
+  ) {}
 
   @Post('search')
   async search(@Body() body: SearchDto) {
@@ -34,7 +38,14 @@ export class SearchController {
       startLine: item.payload?.startLine,
       endLine: item.payload?.endLine,
       type: item.payload?.type,
-      snippet: (item.payload?.text as string).substring(0, 200), // первые 200 символов
+      snippet: ((item.payload?.text as string) ?? '').substring(0, 200), // первые 200 символов
     }));
+  }
+
+  @Get('calc')
+  async getRequirementsByVector() {
+    return await this.calculatePipeline.processCalculate(
+      'repo_060aab5ad36ae1fdd74d3006131b197ca777fa48',
+    );
   }
 }

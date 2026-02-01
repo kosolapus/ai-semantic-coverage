@@ -2,14 +2,18 @@ import { QdrantClient } from '@qdrant/qdrant-js';
 
 export class QdrantAdapter {
   client: QdrantClient;
+  public static baseVectorSize = 768;
 
   constructor() {
     this.client = new QdrantClient({ url: 'http://localhost:6333' });
   }
 
-  async createCollection(name: string, vectorSize: number) {
+  async createCollection(name: string, vectorSize?: number) {
     await this.client.createCollection(name, {
-      vectors: { size: vectorSize, distance: 'Cosine' },
+      vectors: {
+        size: vectorSize ?? QdrantAdapter.baseVectorSize,
+        distance: 'Cosine',
+      },
     });
   }
 
@@ -30,5 +34,13 @@ export class QdrantAdapter {
       limit: top,
     });
     return result;
+  }
+
+  async prepareCollection(name: string) {
+    try {
+      await this.client.getCollection(name);
+    } catch {
+      await this.createCollection(name);
+    }
   }
 }
