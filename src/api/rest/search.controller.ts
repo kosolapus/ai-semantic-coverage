@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get } from '@nestjs/common';
+import { Controller, Post, Body, Get, Query } from '@nestjs/common';
 import { EmbeddingService } from '@/domain/embedding/embedding.service';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { CalculatePipeline } from '@/pipeline/calculate.pipeline';
@@ -13,6 +13,7 @@ class SearchDto {
   @ApiPropertyOptional()
   top?: number;
 }
+
 @Controller('search')
 export class SearchController {
   constructor(
@@ -43,9 +44,7 @@ export class SearchController {
   }
 
   @Get('calc')
-  async getRequirementsByVector() {
-    return await this.calculatePipeline.processCalculate(
-      'repo_060aab5ad36ae1fdd74d3006131b197ca777fa48',
-    );
+  async getRequirementsByVector(@Query('project') project: string) {
+    return await this.calculatePipeline.processCalculate(project);
   }
 }
